@@ -39,28 +39,50 @@
     });
 
     //define master view
-    var DirectoryView = Backbone.View.extend({
-        el: $("#contacts"),
+  var DirectoryView = Backbone.View.extend({
+    el: $("#contacts"),
 
-        initialize: function () {
-            this.collection = new Directory(contacts);
-            this.render();
-        },
+    initialize: function () {
+        this.collection = new Directory(contacts);
+        this.render();
+        this.$el.find("#filter").append(this.createSelect());
+    },
 
-        render: function () {
-            var that = this;
-            _.each(this.collection.models, function (item) {
-                that.renderContact(item);
-            }, this);
-        },
+    render: function () {
+        var that = this;
+        _.each(this.collection.models, function (item) {
+            that.renderContact(item);
+        }, this);
+    },
 
-        renderContact: function (item) {
-            var contactView = new ContactView({
-                model: item
-            });
-            this.$el.append(contactView.render().el);
-        }
-    });
+    renderContact: function (item) {
+        var contactView = new ContactView({
+            model: item
+        });
+        this.$el.append(contactView.render().el);
+    }
+    
+    getTypes: function() {
+      return _.uniq(this.collection.pluck("type"), false, function(type) {
+        return type.toLowerCase();
+      });
+    }
+
+    createSelect: function() {
+       var select = $("<select/>", {
+            html: "<option>All</option>"
+          });
+
+      _.each(this.getTypes(), function(item) {
+        var option = $("<option/>", {
+          value: item.toLowerCase(),
+          text: item.toLowerCase()
+        }).appendTo(select);
+      });
+      return select;
+    }
+      
+  });
 
     //create instance of master view
     var directory = new DirectoryView();
